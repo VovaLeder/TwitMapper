@@ -1,26 +1,19 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-function App() {
+const LoginPage = lazy(() => import('./pages').then((e) => ({ default: e.LoginPage })));
+const MainPage = lazy(() => import('./pages').then((e) => ({ default: e.MainPage })));
+
+export function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" Component={LoginPage} />
+          <Route path="/main" Component={MainPage} />
+          <Route path="/" element={<Navigate replace to="/login"/>}/>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
-
-export default App;

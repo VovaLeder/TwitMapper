@@ -1,4 +1,10 @@
 {
+  "ts-node": {
+    "require": ["tsconfig-paths/register"],
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
   "compilerOptions": {
     "target": "es5",
     "lib": [
@@ -18,7 +24,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "paths": {
+      "@pages*": ["src/pages", "src/pages/*"],
+      "@ui*": ["src/ui", "src/ui/*"]
+    }
   },
   "include": [
     "src"
