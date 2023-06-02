@@ -1,12 +1,12 @@
-import { useStore } from 'effector-react';
-import * as React from 'react';
-import { Field, Form, FieldRenderProps } from 'react-final-form';
-import { Button, Input, Tab} from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { StackPanel } from '../../ui';
-import styled from 'styled-components';
-import { useState } from 'react';
-import axios from 'axios';
+import * as React from "react";
+import { Button, Tab, TextField} from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { StackPanel } from "src/ui";
+import styled from "styled-components";
+import { useState } from "react";
+import axios from "axios";
+import { withRouter, RouterProps, setSession } from 'src/features';
+import { Navigate } from 'react-router-dom';
 
 const StyledPage = styled.div`
     width: 30%;
@@ -16,42 +16,58 @@ const StyledPage = styled.div`
 `;
 
 type LogRegFormProps = {
-    action: 'register' | 'login';
+    action: "register" | "login",
+    router: RouterProps,
 };
 
 function LogRegForm(props: LogRegFormProps) {
+    const [errorsValue, setErrorsValue] = useState( { hasError: false, errorMsg: ""});
 
-    const req = {
-        login: "admin",
-        pass: "admin"
-    }
+    function onSubmit(event: any) {
+        event.preventDefault();
 
-    function onSubmit() {
-        axios.post(`http://127.0.0.1:8080/login`, req)
-            .then(response => {console.log(response.data.data)})
-            .catch(err => {console.log(err)});
+        const req = {
+            login: event.target.login.value,
+            pass: event.target.pass.value
+        }
+
+        axios.post(`http://127.0.0.1:8080/${props.action === "register" ? "reg" : "login"}`, req)
+            .then(response => {
+                if (props.action === "register") {
+                    setErrorsValue( { hasError: true,  errorMsg: "Успешная регистрация. Вы можете войти в аккаунт." }); 
+                }
+                else {
+                    setSession(response.data.data.token, req.login);
+                    props.router.navigate("/main");
+                }
+            })
+            .catch(err => {
+                setErrorsValue( { hasError: true,  errorMsg: err.response.data.error.description });
+            })
+            .catch(err => {
+                console.error(err);
+                setErrorsValue( { hasError: true,  errorMsg: "Произошла непредвиденная ошибка. Обратитесь к администратору." });
+            });
     }
 
     return (
-        <Form onSubmit={onSubmit}>
-            {(formState) => {
-                return (
-                    <form onSubmit={formState.handleSubmit}>
-                        <StackPanel orientation={'vertical'}>
-                            <Input placeholder="Login"></Input>
-                            <Input placeholder="Password" type="password"></Input>
-                            <Button type="submit">{props.action === 'register' ? 'Register' : 'Login'}</Button>
-                            <a href="main">Main</a>
-                        </StackPanel>
-                    </form>
-                )
-            }}
-        </Form>
+        <form onSubmit={onSubmit}>
+            <StackPanel orientation={"vertical"}>
+                <TextField error = {errorsValue.hasError} placeholder="Логин" name="login" />
+                <TextField error = {errorsValue.hasError} helperText={errorsValue.errorMsg} placeholder="Пароль" name="pass" type="password" />
+                <Button type="submit">{props.action === "register" ? "Зарегестрироваться" : "Войти"}</Button>
+            </StackPanel>
+        </form>
     )
 }
 
-export function LoginPage() {
-    const [tabValue, setTabValue] = useState('0');
+type LoginPageProps = {
+    authorized: string;
+    router: RouterProps,
+} 
+
+function LoginPage(props: LoginPageProps) {
+    const [tabValue, setTabValue] = useState("1");
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
         setTabValue(newValue);
@@ -59,14 +75,17 @@ export function LoginPage() {
 
     return (
         <StyledPage>
+            {(sessionStorage.getItem("login") != null) && <Navigate replace to="/main"/>}
             <TabContext value={tabValue}>
                 <TabList onChange={handleTabChange}>
-                    <Tab label="Register" value="0" />
-                    <Tab label="Log In" value="1" />
+                    <Tab label="Регистрация" value="0" />
+                    <Tab label="Вход" value="1" />
                 </TabList>
-                <TabPanel value="0">{LogRegForm({action: "register"})}</TabPanel>
-                <TabPanel value="1">{LogRegForm({action: "login"})}</TabPanel>
+                <TabPanel value="0">{LogRegForm({action: "register", router: props.router})}</TabPanel>
+                <TabPanel value="1">{LogRegForm({action: "login", router: props.router})}</TabPanel>
             </TabContext>
         </StyledPage>
     );
 }
+
+export default withRouter(LoginPage);
