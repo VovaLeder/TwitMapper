@@ -14,7 +14,7 @@ export function App() {
     useEffect(() => {
         axios.get(`http://127.0.0.1:8080/getMe`)
             .then(response => {
-                setSession(token ?? "huh", response.data.data.login);
+                setSession(token ?? "huh", response.data.data.login, response.data.data.isAdmin);
             })
             .catch(err => {
                 resetSession();

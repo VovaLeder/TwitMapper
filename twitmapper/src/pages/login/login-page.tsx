@@ -37,7 +37,7 @@ function LogRegForm(props: LogRegFormProps) {
                     setErrorsValue( { hasError: true,  errorMsg: "Успешная регистрация. Вы можете войти в аккаунт." }); 
                 }
                 else {
-                    setSession(response.data.data.token, req.login);
+                    setSession(response.data.data.token, req.login, response.data.data.isAdmin);
                     props.router.navigate("/main");
                 }
             })

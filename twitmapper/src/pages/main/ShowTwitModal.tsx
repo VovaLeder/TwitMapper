@@ -1,12 +1,11 @@
 import { 
     Modal,
-    Box, 
-    Typography, 
-    CircularProgress, 
-    List, 
-    ListSubheader, 
-    ListItem, 
-    ListItemText, 
+    Box,
+    Typography,
+    CircularProgress,
+    List,
+    ListItem,
+    ListItemText,
     TextField,
     Button,
     IconButton,
@@ -18,6 +17,7 @@ import { StackPanel } from 'src/ui';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { TwitData } from 'src/models';
+import { getLogin, isAdmin } from 'src/features';
 
 const BoxModalStyle = {
     position: 'absolute' as 'absolute',
@@ -45,7 +45,6 @@ export function ShowTwitModal(props: ShowTwitModalProps){
     function loadTwit(){
         axios.get(`http://127.0.0.1:8080/twit?id=${props.twitId}`)
             .then(response => {
-                console.log(response.data.data)
                 setTwit(response.data.data);
             })
             .catch(err => {
@@ -111,7 +110,7 @@ export function ShowTwitModal(props: ShowTwitModalProps){
                     <>
                         <Typography id="modal-modal-title" variant="h6" component="h2">
                             Просмотр Твита от <i>{twit.author.login}</i>
-                            {twit.author.login === sessionStorage.getItem('login') &&
+                            {(twit.author.login === getLogin() || isAdmin()) &&
                                 <IconButton edge="end" onClick={() => props.onDeleteTwit(twit.id)}>
                                     <Delete />
                                 </IconButton>
@@ -144,7 +143,7 @@ export function ShowTwitModal(props: ShowTwitModalProps){
                                 <ListItem
                                     secondaryAction={
                                         <>
-                                            {comment.author.login === sessionStorage.getItem('login') &&
+                                            {(comment.author.login === getLogin() || isAdmin()) &&
                                                 <IconButton edge="end" onClick={() => onDeleteComment(comment.id)}>
                                                     <Delete />
                                                 </IconButton>
