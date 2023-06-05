@@ -15,6 +15,7 @@ export type Twit = {
     lat: number;
     lon: number;
     author: Author;
+    text: string;
 }
 
 export type TwitData = {

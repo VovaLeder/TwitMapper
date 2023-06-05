@@ -19,5 +19,5 @@ export function isAdmin() {
 }
 
 export function getLogin() {
-    return sessionStorage.getItem('isAdmin');
+    return sessionStorage.getItem('login');
 }

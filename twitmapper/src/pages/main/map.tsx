@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet'
-import { Chip } from '@mui/material';
+import { Chip, Divider, Typography } from '@mui/material';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { StackPanel } from 'src/ui';
+import { Twit } from 'src/models'
 
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -57,13 +58,6 @@ function CreateTwitMarker(props: CreateTwitMarkerProps) {
      
    }
 
-type Twit = {
-    author: {id: number, login: string},
-    id: number,
-    lat: number,
-    lon: number,
-}
-
 type TwitMarkersProps = {
     twits: Array<Twit>,
     onClick: (id: number) => void
@@ -74,8 +68,15 @@ function TwitMarkers(props: TwitMarkersProps){
         <Marker position={[twit.lat, twit.lon]}>
             <Popup>
                 <StackPanel orientation="vertical">
-                    <Chip label={`Твит от ${twit.author.login}`} style = {{ marginBottom: 10 }}/>
-                    <Chip label={`Посмотреть`} variant="outlined" onClick={() => props.onClick(twit.id)} />
+                    <Divider>
+                        <Chip label={`Твит от ${twit.author.login}`}/>
+                    </Divider>
+                    <div style={{width: "20rem"}}>
+                        <Typography noWrap variant="body2">
+                            {twit.text}
+                        </Typography>
+                    </div>
+                    <Chip label={`Посмотреть полностью`} variant="outlined" onClick={() => props.onClick(twit.id)} />
                 </StackPanel>
             </Popup>
         </Marker>

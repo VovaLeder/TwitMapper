@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Chip, TextField, Button, Collapse, List, ListItem, ListItemButton, ListItemText, Stack, Divider } from '@mui/material';
+import { Chip, TextField, Button, Collapse, List, Typography, ListItemButton, ListItemText, Stack, Divider } from '@mui/material';
 import { StackPanel } from 'src/ui';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -151,7 +151,14 @@ function MainPage(props: MainPageProps) {
                             <List component="div" disablePadding>
                                 {foundTwits.map((twit) => (
                                     <ListItemButton onClick={() => handleShowTwitOpen(twit.id)}>
-                                        <ListItemText primary={twit.author.login} />
+                                        <ListItemText
+                                            primary={twit.author.login}
+                                            secondary={
+                                                <Typography noWrap variant="body2">
+                                                    {twit.text}
+                                                </Typography>
+                                            }
+                                        />
                                     </ListItemButton>
                                 ))}
                             </List>
