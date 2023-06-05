@@ -100,6 +100,9 @@ function MainPage(props: MainPageProps) {
         axios.delete(`http://127.0.0.1:8080/delete-twit?id=${id}`, )
             .then(response => {
                 handleShowTwitClose();
+                if (foundTwits.some(twit => twit.id === id)){
+                    setFoundTwits(foundTwits.filter(twits => twits.id !== id))
+                }
                 requestTwits();
             })
             .catch(err => {
