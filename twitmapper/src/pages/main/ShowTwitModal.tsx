@@ -12,7 +12,7 @@ import {
     Divider,
     Chip
 } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import { StackPanel } from 'src/ui';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -35,6 +35,7 @@ type ShowTwitModalProps = {
     twitId: number;
     handleShowTwitClose: () => void;
     onDeleteTwit: (id: number) => void;
+    onEditTwit: (id: number, text: string) => void;
 }
 
 const blankTwit: TwitData = {id: 0, lat: 0, lon: 0, text: "", author: {id: 0, login: "", text: ""}, comments: []}
@@ -111,9 +112,14 @@ export function ShowTwitModal(props: ShowTwitModalProps){
                         <Typography id="modal-modal-title" variant="h6" component="h2">
                             Просмотр Твита от <i>{twit.author.login}</i>
                             {(twit.author.login === getLogin() || isAdmin()) &&
-                                <IconButton edge="end" onClick={() => props.onDeleteTwit(twit.id)}>
-                                    <Delete />
-                                </IconButton>
+                                <>
+                                    <IconButton edge="end" onClick={() => props.onDeleteTwit(twit.id)}>
+                                        <Delete />
+                                    </IconButton>
+                                    <IconButton edge="end" onClick={() => props.onEditTwit(twit.id, twit.text)}>
+                                        <Edit />
+                                    </IconButton>
+                                </>
                             }
                         </Typography>
                         <Typography>

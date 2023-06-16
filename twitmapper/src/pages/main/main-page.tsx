@@ -8,6 +8,7 @@ import { Map } from './map';
 import { withRouter, RouterProps, resetSession } from 'src/features';
 import { Navigate } from 'react-router-dom';
 import { CreateTwitModal } from './CreateTwitModal';
+import { EditTwitModal } from './EditTwitModal';
 import { ShowTwitModal } from './ShowTwitModal';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Twit } from "src/models";
@@ -23,6 +24,10 @@ function MainPage(props: MainPageProps) {
     const handleCreateTwitOpen = (lat: number, lon: number) => setCreateTwitOpen( { open: true, lat: lat, lon: lon } );
     const handleCreateTwitClose = () => setCreateTwitOpen( {open: false,  lat: 0, lon: 0} );
 
+    const [editTwitOpen, setEditTwitOpen] = useState( { open: false, id: 0, text: '' } );
+    const handleEditTwitOpen = (id: number, text: string) => setEditTwitOpen( { open: true, id: id, text: text } );
+    const handleEditTwitClose = () => setEditTwitOpen( {open: false,  id: 0, text: '' } );
+
     const [showTwitOpen, setShowTwitOpen] = useState( { open: false, id: 0 } );
     const handleShowTwitOpen = (id: number) => setShowTwitOpen( { open: true, id: id } );
     const handleShowTwitClose = () => setShowTwitOpen( {open: false,  id: 0 } );
@@ -34,6 +39,7 @@ function MainPage(props: MainPageProps) {
 
     const [twits, setTwits] = React.useState( [] );
     const requestTwits = () => {
+        setTwits([])
         axios.get(`http://127.0.0.1:8080/twits`)
             .then(response => {
                 setTwits(response.data.data);
@@ -113,12 +119,43 @@ function MainPage(props: MainPageProps) {
             });
     }
 
+    function onEditTwit(event: any){
+        event.preventDefault();
+
+        const req = {
+            text: event.target.text.value,
+            id: editTwitOpen.id,
+        }
+
+        handleShowTwitClose();
+
+        axios.post(`http://127.0.0.1:8080/edit-twit`, req)
+            .then(response => {
+                requestTwits();
+            })
+            .catch(err => {
+                console.error(err.response.data.error.description);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+
+        
+        requestTwits();
+    }
+
     return (
         <>
             {(sessionStorage.getItem("login") == null) && <Navigate replace to="/login"/>}
 
             <CreateTwitModal createTwitOpen={createTwitOpen.open} handleCreateTwitClose={handleCreateTwitClose} onSubmit={onSubmitTwit} />
-            {showTwitOpen.open && <ShowTwitModal handleShowTwitClose={handleShowTwitClose} twitId={showTwitOpen.id} onDeleteTwit={onDeleteTwit} />}
+            <EditTwitModal editTwitOpen={editTwitOpen.open} handleEditTwitClose={handleEditTwitClose} default={editTwitOpen.text} onEdit={onEditTwit} />
+            {showTwitOpen.open && <ShowTwitModal
+                handleShowTwitClose={handleShowTwitClose}
+                twitId={showTwitOpen.id}
+                onDeleteTwit={onDeleteTwit}
+                onEditTwit={handleEditTwitOpen}
+            />}
 
             <Stack direction="row">
                 <Map onCreateTwit={handleCreateTwitOpen} onShowTwit={handleShowTwitOpen} twits={twits}/>
